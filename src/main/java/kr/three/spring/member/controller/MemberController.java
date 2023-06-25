@@ -22,17 +22,20 @@ public class MemberController {
 	
 	private final MemberService memberService;
 	private final PasswordEncoder passwordEncoder;
-
-//	@Autowired
-//	MemberService memberService;
-//	@Autowired
-//	PasswordEncoder passwordEncoder;
 	
+	// 로그인
 	@GetMapping("/login")
 	public String login() {
 		return "member/memberLogin";
 	}
 	
+	@GetMapping("/login/error")
+	public String loginError(Model model) {
+		model.addAttribute("loginErrorMsg", "아이디 또는 패스워드가 잘못었습니다.");
+		return "member/memberLogin";
+	}
+	
+	// 회원가입
 	@GetMapping(value = "/new")
     public String memberForm(Model model){
         model.addAttribute("memberFormDto", new MemberFormDto());
