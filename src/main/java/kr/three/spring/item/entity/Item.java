@@ -1,7 +1,5 @@
 package kr.three.spring.item.entity;
 
-import java.time.LocalDateTime;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,6 +11,8 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import kr.three.spring.item.constant.ItemSellStatus;
+import kr.three.spring.item.dto.ItemFormDto;
+import kr.three.spring.utils.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,7 +26,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class Item {
+public class Item extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY) // MySQL: IDENTITY
 	@Column(name = "item_id")
@@ -48,7 +48,12 @@ public class Item {
 	@Column(nullable = false)
 	private String itemDetail;			// product Detail
 	
-	private LocalDateTime regTime;		// Register Time
-	
-	private LocalDateTime updateTime;	// Update Time
+	// change detection
+	public void updateItem(ItemFormDto itemFormDto) {
+		this.itemSellStatus = itemFormDto.getItemSellStatus();
+		this.itemNm = itemFormDto.getItemNm();
+		this.price = itemFormDto.getPrice();
+		this.stockNumber = itemFormDto.getStockNumber();
+		this.itemDetail = itemFormDto.getItemDetail();
+	}
 }
