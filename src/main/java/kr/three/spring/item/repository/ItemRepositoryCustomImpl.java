@@ -8,6 +8,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.thymeleaf.util.StringUtils;
 
@@ -21,17 +22,19 @@ import kr.three.spring.item.entity.Item;
 
 public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 
-	private JPAQueryFactory queryFactory;
+	private JPAQueryFactory queryFactory; // Make Query
 	
 	public ItemRepositoryCustomImpl(EntityManager em) {
 		queryFactory = new JPAQueryFactory(em);
 	}
 	
+	// Check Sell Status
 	private BooleanExpression searchSellStatusEq(ItemSellStatus searchSellStatus){
         return searchSellStatus == null ? null : item.itemSellStatus.eq(searchSellStatus);
+        // return: WHERE itemSellStatus = 'SELL'('SOLD_OUT')
     }
 	
-	// Select only items within certain period
+	// Select items within certain period
     private BooleanExpression regDtsAfter(String searchDateType){
         LocalDateTime dateTime = LocalDateTime.now();
 
@@ -50,7 +53,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
         return item.regTime.after(dateTime);
     }
 
-    // 
+    // Search item containing searchTerm in searchField
     private BooleanExpression searchByLike(String searchBy, String searchQuery){
         if(StringUtils.equals("itemNm", searchBy)){
             return item.itemNm.like("%" + searchQuery + "%");
@@ -63,7 +66,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
 	@Override
 	public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
 		
-		List<Item> list = queryFactory
+		List<Item> content = queryFactory
 			.selectFrom(item)
 			.where(regDtsAfter(itemSearchDto.getSearchDateType()),
                    searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
@@ -81,6 +84,6 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
                        searchByLike(itemSearchDto.getSearchBy(), itemSearchDto.getSearchQuery()))
                 .fetchOne();
 		
-		return null;
+		return new PageImpl<Item>(content, pageable, total);
 	}
 }
